@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STACK — Home Gym Console</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+
+  .hero {
+    padding: 72px 0 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 44px 0 36px; }
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, rgba(215,242,56,0.08), transparent 70%);
+    pointer-events: none;
+  }
+
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(56px, 12vw, 104px);
+    letter-spacing: -0.01em;
+    line-height: 0.92;
+    text-transform: uppercase;
+    margin: 14px 0 0;
+    color: var(--chalk);
+  }
+
+  .wordmark span {
+    color: var(--accent);
+  }
+
+  .tagline {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+    margin-top: 14px;
+    max-width: 440px;
+    line-height: 1.6;
+  }
+
+  .console {
+    padding: 8px 0 100px;
+  }
+
+  .console-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .console-label h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+
+  .slot-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--chalk-dim);
+  }
+
+  .slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 640px) {
+    .slots { grid-template-columns: 1fr; }
+  }
+
+  .slot {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--steel);
+    padding: 26px 24px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    transition: border-color 0.2s ease, transform 0.15s ease;
+  }
+
+  @media (max-width: 640px) {
+    .slot { padding: 18px 16px; gap: 14px; }
+  }
+
+  .slot.active {
+    cursor: pointer;
+  }
+
+  .slot.active:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .slot.active:hover .pin {
+    transform: translateX(6px);
+    background: var(--accent);
+  }
+
+  .pin {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--steel-2);
+    background: var(--panel-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--chalk-dim);
+    transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+
+  .slot.active .pin {
+    color: var(--bg);
+  }
+
+  .slot.locked .pin {
+    opacity: 0.5;
+  }
+
+  .slot-body h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 19px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 2px 0 6px;
+  }
+
+  .slot-body p {
+    font-size: 13px;
+    color: var(--chalk-dim);
+    margin: 0 0 10px;
+    line-height: 1.5;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid var(--steel-2);
+    color: var(--chalk-dim);
+  }
+
+  .slot.active .tag {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .footnote {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--chalk-dim);
+    text-align: center;
+    padding: 0 0 48px;
+    letter-spacing: 0.04em;
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="wrap hero">
+    <div class="eyebrow"><span class="status-dot"></span>SIGNAL: SIMULATED DATA</div>
+    <h1 class="wordmark">ST<span>A</span>CK</h1>
+    <p class="tagline">Console for the home multi-gym. Pick a program below to load it onto the handles.</p>
+  </div>
+
+  <div class="hairline wrap"></div>
+
+  <div class="wrap console">
+    <div class="console-label">
+      <h2>Select Program</h2>
+      <span class="slot-count">4 slots · 1 ready</span>
+    </div>
+
+    <div class="slots">
+
+      <a href="visualizer.html" class="slot active">
+        <div class="pin">01</div>
+        <div class="slot-body">
+          <h3>Lift Visualizer</h3>
+          <p>Live weight, pull distance, and rep count for whatever handle is loaded.</p>
+          <span class="tag">Ready</span>
+        </div>
+      </a>
+
+      <div class="slot locked">
+        <div class="pin">02</div>
+        <div class="slot-body">
+          <h3>Pace Trainer</h3>
+          <p>Tempo cues for controlled reps — concentric and eccentric timing.</p>
+          <span class="tag">Coming soon</span>
+        </div>
+      </div>
+
+      <div class="slot locked">
+        <div class="pin">03</div>
+        <div class="slot-body">
+          <h3>Target Practice</h3>
+          <p>A game built on pull accuracy and hold time. Handles as controllers.</p>
+          <span class="tag">Coming soon</span>
+        </div>
+      </div>
+
+      <div class="slot locked">
+        <div class="pin">04</div>
+        <div class="slot-body">
+          <h3>Session Log</h3>
+          <p>History of sets, weight, and reps across every handle.</p>
+          <span class="tag">Coming soon</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="footnote">STACK reads handle position over Bluetooth. This build uses artificial data until the device is wired in.</p>
+
+</body>
+</html>
