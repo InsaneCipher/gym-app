@@ -64,7 +64,7 @@
   }
 
   @media (max-width: 640px) {
-    .board { grid-template-columns: 1fr; gap: 12px; }
+    /* replaced below by the full cockpit-mode block */
   }
 
   .panel {
@@ -75,9 +75,7 @@
     flex-direction: column;
   }
 
-  @media (max-width: 640px) {
-    .panel { padding: 18px 16px; }
-  }
+  /* (mobile panel padding now handled in the cockpit-mode block below) */
 
   .panel-label {
     font-family: var(--font-mono);
@@ -285,6 +283,115 @@
     padding: 30px 20px 50px;
     letter-spacing: 0.04em;
   }
+
+  /* =========================================================
+     COCKPIT MODE — phones/small tablets.
+     Goal: everything visible with zero scrolling, since this
+     screen gets watched mid-set. The whole page becomes a
+     single fixed-height flex column; the board fills whatever
+     space is left after the header/handles, and its three
+     panels sit side-by-side (not stacked) so the layout stays
+     short instead of tall.
+     ========================================================= */
+  @media (max-width: 640px) {
+    html, body {
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .footnote { display: none; }
+
+    .page-header { padding-top: 8px; flex: none; }
+    .page-header .back {
+      margin-bottom: 4px;
+      font-size: 10px;
+      padding: 4px 0;
+    }
+    .page-header .status-line { font-size: 9px; letter-spacing: 0.1em; }
+
+    .title-row { padding: 4px 0 8px; flex: none; }
+    .title-row .eyebrow { margin-bottom: 2px; font-size: 9px; }
+    .title-row h1 { font-size: 19px; }
+
+    .handles {
+      flex: none;
+      padding-bottom: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      gap: 6px;
+    }
+    .handle-chip {
+      flex: none;
+      white-space: nowrap;
+      padding: 8px 12px;
+      min-height: 34px;
+      font-size: 10px;
+    }
+
+    .board {
+      flex: 1;
+      min-height: 0;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding-bottom: 10px;
+    }
+
+    .panel {
+      padding: 10px 6px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel-label {
+      font-size: 8px;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    /* weight stack */
+    .stack-area { flex: 1; min-height: 0; gap: 10px; }
+    .plates { width: clamp(38px, 16vw, 60px); gap: 2px; }
+    .plate { height: clamp(6px, 3.2vh, 13px); }
+    .pin { width: 20px; height: 5px; }
+    .pin::after { width: 9px; height: 9px; left: -4px; top: -2px; }
+    .weight-readout { margin-top: 8px; flex: none; }
+    .weight-num { font-size: clamp(16px, 4.5vh, 26px); }
+    .weight-unit { font-size: 8px; }
+    .stepper { margin-top: 8px; gap: 4px; flex: none; }
+    .step-btn { width: 32px; height: 32px; font-size: 14px; }
+
+    /* ROM track */
+    .track-area {
+      flex: 1;
+      min-height: 0;
+      width: clamp(20px, 7vw, 32px);
+      height: auto;
+    }
+    .carriage { left: -6px; width: calc(100% + 12px); }
+    .rom-readout { margin-top: 8px; flex: none; }
+    .rom-num { font-size: clamp(16px, 4.5vh, 26px); }
+
+    /* reps / session */
+    .odometer { gap: 4px; margin-bottom: 4px; flex: none; }
+    .digit {
+      width: clamp(20px, 8vw, 32px);
+      height: clamp(30px, 10vh, 44px);
+      font-size: clamp(14px, 4.5vh, 22px);
+    }
+    .reps-caption { font-size: 7px; margin-bottom: 8px; }
+    .session-row { padding: 3px 0; font-size: 8px; }
+    .controls { padding-top: 8px; gap: 6px; }
+    .ctrl-btn { padding: 8px 0; min-height: 34px; font-size: 9px; }
+  }
+
 
 </style>
 </head>
