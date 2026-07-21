@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lift Visualizer — STACK</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="css/styles.css">
 <style>
 
-  .title-row { padding: var(--space-md) 0 var(--space-lg); }
+  .title-row { padding-top: var(--space-md); padding-bottom: var(--space-lg); }
 
-  .title-row .eyebrow { margin-bottom: 6px; }
+  .title-row .eyebrow { margin-bottom: var(--space-sm); }
 
   .title-row h1 {
     font-family: var(--font-display);
@@ -282,7 +282,7 @@
     font-size: 11px;
     color: var(--chalk-dim);
     text-align: center;
-    padding: 30px 0 50px;
+    padding: 30px 20px 50px;
     letter-spacing: 0.04em;
   }
 
@@ -291,7 +291,7 @@
 <body>
 
   <div class="wrap page-header">
-    <a href="../index.html" class="back">&larr; STACK</a>
+    <a href="index.html" class="back">&larr; STACK</a>
     <div class="status-line"><span class="status-dot"></span>SIGNAL: SIMULATED DATA</div>
   </div>
 
@@ -360,6 +360,6 @@
 
   <p class="footnote">Weight, pull distance, and reps are generated for preview — the console will read these live from the handle's Bluetooth signal.</p>
 
-<script src="visualizer.js"></script>
+<script src="js/visualizer.js"></script>
 </body>
 </html>

@@ -4,17 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>STACK — Home Gym Console</title>
-<link rel="stylesheet" href="main/styles.css">
+<link rel="stylesheet" href="css/styles.css">
 <style>
 
   .hero {
-    padding: var(--space-xl) 0 var(--space-lg);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-lg);
     position: relative;
     overflow: hidden;
   }
 
   @media (max-width: 640px) {
-    .hero { padding: var(--space-lg) 0 var(--space-md); }
+    .hero { padding-top: var(--space-lg); padding-bottom: var(--space-md); }
   }
 
   .hero::before {
@@ -58,7 +59,7 @@
     line-height: 1.6;
   }
 
-  .console { padding: var(--space-xs) 0 80px; }
+  .console { padding-top: var(--space-xs); padding-bottom: 80px; }
 
   .console-label {
     display: flex;
@@ -165,7 +166,7 @@
     font-size: 11px;
     color: var(--chalk-dim);
     text-align: center;
-    padding: 0 0 48px;
+    padding: 0 20px 48px;
     letter-spacing: 0.04em;
   }
 
@@ -189,7 +190,7 @@
 
     <div class="slots">
 
-      <a href="main/visualizer.html" class="slot active">
+      <a href="visualizer.html" class="slot active">
         <div class="pin">01</div>
         <div class="slot-body">
           <h3>Lift Visualizer</h3>
