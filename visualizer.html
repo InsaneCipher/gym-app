@@ -20,34 +20,49 @@
     margin: 0;
   }
 
-  /* handle selector */
+  /* handle selector — a single dropdown instead of a row of buttons */
   .handles {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
     padding-bottom: var(--space-lg);
   }
 
-  .handle-chip {
+  .select-label {
+    display: block;
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 12px 16px;
-    min-height: 44px;
-    background: var(--panel);
-    border: 1px solid var(--steel);
     color: var(--chalk-dim);
-    transition: all 0.15s ease;
-    -webkit-tap-highlight-color: transparent;
+    margin-bottom: 8px;
   }
 
-  .handle-chip:hover { border-color: var(--steel-2); color: var(--chalk); }
+  .handle-select {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--chalk);
+    background: var(--panel)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2399968d' stroke-width='2'%3E%3Cpath d='M5 7l5 6 5-6'/%3E%3C/svg%3E")
+      no-repeat right 14px center;
+    background-size: 16px;
+    border: 1px solid var(--steel);
+    padding: 14px 40px 14px 16px;
+    min-height: 48px;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s ease;
+  }
 
-  .handle-chip.selected {
+  .handle-select:hover,
+  .handle-select:focus-visible {
     border-color: var(--accent);
-    color: var(--accent);
-    background: var(--panel-2);
+  }
+
+  .handle-select option {
+    background: var(--panel);
+    color: var(--chalk);
   }
 
   /* main grid */
@@ -305,6 +320,19 @@
       flex-direction: column;
     }
 
+    /* body's children (.wrap elements) become flex items once body is a
+       flex column. .wrap's own `margin: 0 auto` is meant for normal block
+       centering, but on a flex item an auto cross-axis margin makes the
+       browser shrink-wrap and CENTER it instead of stretching full width —
+       this line cancels that so the header/handles/board stay left-aligned
+       and full-width exactly like before. */
+    body > .wrap {
+      align-self: stretch;
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
     .footnote { display: none; }
 
     .page-header { padding-top: 8px; flex: none; }
@@ -315,36 +343,36 @@
     }
     .page-header .status-line { font-size: 9px; letter-spacing: 0.1em; }
 
-    .title-row { padding: 4px 0 8px; flex: none; }
+    .title-row { padding-top: 4px; padding-bottom: 8px; flex: none; }
     .title-row .eyebrow { margin-bottom: 2px; font-size: 9px; }
     .title-row h1 { font-size: 19px; }
 
-    .handles {
-      flex: none;
-      padding-bottom: 8px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      gap: 6px;
-    }
-    .handle-chip {
-      flex: none;
-      white-space: nowrap;
-      padding: 8px 12px;
-      min-height: 34px;
-      font-size: 10px;
+    .handles { flex: none; padding-bottom: 8px; }
+    .select-label { font-size: 9px; margin-bottom: 4px; }
+    .handle-select {
+      max-width: none;
+      font-size: 12px;
+      padding: 10px 36px 10px 12px;
+      min-height: 38px;
     }
 
+    /* .board no longer grows to fill all remaining space — it sizes to
+       its (now capped) content and stays centered in whatever room is
+       left, so there's real whitespace instead of everything stretching
+       edge to edge. */
     .board {
-      flex: 1;
+      flex: 0 1 auto;
       min-height: 0;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
       padding-bottom: 10px;
+      width: 100%;
+      max-width: 480px;
+      margin: auto;
     }
 
     .panel {
-      padding: 10px 6px;
+      padding: 14px 6px;
       min-height: 0;
       overflow: hidden;
     }
@@ -356,27 +384,25 @@
       text-align: center;
     }
 
-    /* weight stack */
-    .stack-area { flex: 1; min-height: 0; gap: 10px; }
+    /* weight stack — capped heights instead of flex-growing to fill space */
+    .stack-area { gap: 10px; }
     .plates { width: clamp(38px, 16vw, 60px); gap: 2px; }
-    .plate { height: clamp(6px, 3.2vh, 13px); }
+    .plate { height: clamp(6px, 2.2vh, 11px); }
     .pin { width: 20px; height: 5px; }
     .pin::after { width: 9px; height: 9px; left: -4px; top: -2px; }
-    .weight-readout { margin-top: 8px; flex: none; }
+    .weight-readout { margin-top: 10px; flex: none; }
     .weight-num { font-size: clamp(16px, 4.5vh, 26px); }
     .weight-unit { font-size: 8px; }
-    .stepper { margin-top: 8px; gap: 4px; flex: none; }
+    .stepper { margin-top: 10px; gap: 4px; flex: none; }
     .step-btn { width: 32px; height: 32px; font-size: 14px; }
 
-    /* ROM track */
+    /* ROM track — fixed capped height, not flex:1 */
     .track-area {
-      flex: 1;
-      min-height: 0;
       width: clamp(20px, 7vw, 32px);
-      height: auto;
+      height: clamp(140px, 26vh, 220px);
     }
     .carriage { left: -6px; width: calc(100% + 12px); }
-    .rom-readout { margin-top: 8px; flex: none; }
+    .rom-readout { margin-top: 10px; flex: none; }
     .rom-num { font-size: clamp(16px, 4.5vh, 26px); }
 
     /* reps / session */
@@ -388,7 +414,7 @@
     }
     .reps-caption { font-size: 7px; margin-bottom: 8px; }
     .session-row { padding: 3px 0; font-size: 8px; }
-    .controls { padding-top: 8px; gap: 6px; }
+    .controls { padding-top: 8px; gap: 6px; margin-top: 10px; }
     .ctrl-btn { padding: 8px 0; min-height: 34px; font-size: 9px; }
   }
 
@@ -407,12 +433,15 @@
     <h1>Lift Visualizer</h1>
   </div>
 
-  <div class="wrap handles" id="handles">
-    <button class="handle-chip" data-handle="Lat Pulldown" data-accent="#3e7bd6">Lat Pulldown</button>
-    <button class="handle-chip" data-handle="Seated Row" data-accent="#3e7bd6">Seated Row</button>
-    <button class="handle-chip" data-handle="Chest Press" data-accent="#d6452c">Chest Press</button>
-    <button class="handle-chip" data-handle="Leg Extension" data-accent="#47a56b">Leg Extension</button>
-    <button class="handle-chip" data-handle="Shoulder Press" data-accent="#dcb400">Shoulder Press</button>
+  <div class="wrap handles">
+    <label class="select-label" for="handleSelect">Handle loaded</label>
+    <select id="handleSelect" class="handle-select">
+      <option value="Lat Pulldown" data-accent="#3e7bd6">Lat Pulldown</option>
+      <option value="Seated Row" data-accent="#3e7bd6">Seated Row</option>
+      <option value="Chest Press" data-accent="#d6452c">Chest Press</option>
+      <option value="Leg Extension" data-accent="#47a56b">Leg Extension</option>
+      <option value="Shoulder Press" data-accent="#dcb400">Shoulder Press</option>
+    </select>
   </div>
 
   <div class="wrap board">

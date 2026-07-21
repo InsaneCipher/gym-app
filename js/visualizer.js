@@ -37,7 +37,7 @@
   const tempoLabelEl = document.getElementById("tempoLabel");
   const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
-  const handleChips = document.querySelectorAll(".handle-chip");
+  const handleSelect = document.getElementById("handleSelect");
 
   // ---------- build plates ----------
   for (let i = 0; i < PLATE_COUNT; i++) {
@@ -80,18 +80,16 @@
   });
 
   // ---------- handle selection ----------
-  function selectHandle(chip) {
-    handleChips.forEach((c) => c.classList.remove("selected"));
-    chip.classList.add("selected");
-    currentHandle = chip.dataset.handle;
-    const accent = chip.dataset.accent;
+  function selectHandle(option) {
+    currentHandle = option.value;
+    const accent = option.dataset.accent;
     document.documentElement.style.setProperty("--accent", accent);
     handleLabelEl.textContent = currentHandle;
   }
-  handleChips.forEach((chip) => {
-    chip.addEventListener("click", () => selectHandle(chip));
+  handleSelect.addEventListener("change", () => {
+    selectHandle(handleSelect.selectedOptions[0]);
   });
-  selectHandle(handleChips[0]);
+  selectHandle(handleSelect.selectedOptions[0]);
 
   // ---------- rep digits ----------
   function renderReps() {
