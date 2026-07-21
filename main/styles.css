@@ -1,30 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #121316;
-  --panel: #1b1d21;
-  --panel-2: #232529;
-  --steel: #3a3e45;
-  --steel-2: #565b63;
-  --chalk: #ece8e0;
-  --chalk-dim: #99968d;
-  --lime: #d7f238;
-  --red: #d6452c;
-  --blue: #3e7bd6;
-  --yellow: #dcb400;
-  --green: #47a56b;
-  --accent: var(--lime);
+  /* deep navy control-room palette, swapped from the old graphite/lime set */
+  --bg: #0b1016;
+  --panel: #121a23;
+  --panel-2: #1a2530;
+  --steel: #26333f;
+  --steel-2: #445264;
+  --chalk: #eef3f6;
+  --chalk-dim: #7c8d9c;
 
-  --font-display: 'Oswald', sans-serif;
+  --accent: #ff8a3d;   /* amber — replaces lime as the primary accent */
+  --cyan: #4fd8ea;     /* used for the live-signal indicator */
+  --red: #e5533d;
+  --blue: #4f8ff2;
+  --yellow: #f2c14f;
+  --green: #4fbf85;
+
+  --font-display: 'Space Grotesk', sans-serif;
   --font-body: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: 'IBM Plex Mono', monospace;
 
-  /* spacing scale — used everywhere so nothing relies on a one-off number */
-  --space-xs: 8px;
-  --space-sm: 12px;
-  --space-md: 20px;
-  --space-lg: 32px;
-  --space-xl: 48px;
+  /* spacing scale — a little roomier across the board than before */
+  --space-xs: 10px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 36px;
+  --space-xl: 56px;
 }
 
 * { box-sizing: border-box; }
@@ -41,8 +43,8 @@ html, body {
 }
 
 body {
-  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
-  background-size: 22px 22px;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+  background-size: 24px 24px;
   min-height: 100vh;
 }
 
@@ -56,7 +58,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 @media (min-width: 640px) {
-  .wrap { padding: 0 24px; }
+  .wrap { padding: 0 28px; }
 }
 
 .hairline {
@@ -69,44 +71,41 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 :focus-visible {
-  outline: 2px solid var(--lime);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* ---------- status line (dot + "SIGNAL: ..." text) ---------- */
-/* Used standalone. Always block-level with its own bottom margin baked in,
-   so whatever sits below it is never flush against it, on any screen size. */
 .status-line {
   display: block;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--chalk-dim);
 }
 
 .status-dot {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--lime);
+  background: var(--cyan);
   margin-right: var(--space-xs);
-  box-shadow: 0 0 0 0 rgba(215,242,56,0.6);
+  box-shadow: 0 0 0 0 rgba(79,216,234,0.6);
   animation: pulse 2s infinite;
   position: relative;
   top: -1px;
 }
 
 @keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(215,242,56,0.45); }
-  70%  { box-shadow: 0 0 0 8px rgba(215,242,56,0); }
-  100% { box-shadow: 0 0 0 0 rgba(215,242,56,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(79,216,234,0.45); }
+  70%  { box-shadow: 0 0 0 9px rgba(79,216,234,0); }
+  100% { box-shadow: 0 0 0 0 rgba(79,216,234,0); }
 }
 
-/* ---------- page header (used on every page except the homepage) ---------- */
-/* Deliberately NOT flexbox side-by-side — always a simple vertical stack.
-   That removes the entire class of "ran out of horizontal room" bugs. */
+/* ---------- page header (back link + status line, always stacked) ---------- */
 .page-header {
   padding-top: var(--space-md);
 }
@@ -115,10 +114,11 @@ button { font-family: inherit; cursor: pointer; }
   display: block;
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--chalk-dim);
   margin-bottom: var(--space-md);
   width: fit-content;
+  padding: 6px 0;
 }
 
 .page-header .back:hover { color: var(--accent); }
@@ -130,7 +130,7 @@ button { font-family: inherit; cursor: pointer; }
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--chalk-dim);
   display: block;
