@@ -111,8 +111,8 @@
   }
 
   .slot.active { cursor: pointer; }
-  .slot.active:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .slot.active:hover .pin { transform: translateX(6px); background: var(--accent); }
+  .slot.active:hover { border-color: var(--bg); transform: translateY(-2px); }
+  .slot.active:hover .pin { transform: translateX(6px); background: var(--bg); }
 
   .pin {
     flex: none;
@@ -125,11 +125,12 @@
     justify-content: center;
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--chalk-dim);
+    border-color: var(--accent);
+    color: var(--accent);
     transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
   }
 
-  .slot.active .pin { color: var(--bg); }
+  .slot.active .pin { color: var(--accent); }
   .slot.locked .pin { opacity: 0.5; }
 
   .slot-body h3 {
