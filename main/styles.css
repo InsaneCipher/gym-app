@@ -2,7 +2,6 @@
 
 :root {
   --bg: #121316;
-  --bg-grain: #17181c;
   --panel: #1b1d21;
   --panel-2: #232529;
   --steel: #3a3e45;
@@ -19,6 +18,13 @@
   --font-display: 'Oswald', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+
+  /* spacing scale — used everywhere so nothing relies on a one-off number */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --space-xl: 48px;
 }
 
 * { box-sizing: border-box; }
@@ -35,52 +41,22 @@ html, body {
 }
 
 body {
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
   background-size: 22px 22px;
   min-height: 100vh;
 }
 
 a { color: inherit; text-decoration: none; }
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-}
+button { font-family: inherit; cursor: pointer; }
 
 .wrap {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--chalk-dim);
-  min-width: 0;
-  overflow-wrap: break-word;
-}
-
-.status-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--lime);
-  margin-right: 8px;
-  box-shadow: 0 0 0 0 rgba(215,242,56,0.6);
-  animation: pulse 2s infinite;
-  position: relative;
-  top: -1px;
-}
-
-@keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(215,242,56,0.45); }
-  70%  { box-shadow: 0 0 0 8px rgba(215,242,56,0); }
-  100% { box-shadow: 0 0 0 0 rgba(215,242,56,0); }
+@media (min-width: 640px) {
+  .wrap { padding: 0 24px; }
 }
 
 .hairline {
@@ -95,4 +71,67 @@ button {
 :focus-visible {
   outline: 2px solid var(--lime);
   outline-offset: 2px;
+}
+
+/* ---------- status line (dot + "SIGNAL: ..." text) ---------- */
+/* Used standalone. Always block-level with its own bottom margin baked in,
+   so whatever sits below it is never flush against it, on any screen size. */
+.status-line {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lime);
+  margin-right: var(--space-xs);
+  box-shadow: 0 0 0 0 rgba(215,242,56,0.6);
+  animation: pulse 2s infinite;
+  position: relative;
+  top: -1px;
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(215,242,56,0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(215,242,56,0); }
+  100% { box-shadow: 0 0 0 0 rgba(215,242,56,0); }
+}
+
+/* ---------- page header (used on every page except the homepage) ---------- */
+/* Deliberately NOT flexbox side-by-side — always a simple vertical stack.
+   That removes the entire class of "ran out of horizontal room" bugs. */
+.page-header {
+  padding-top: var(--space-md);
+}
+
+.page-header .back {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--chalk-dim);
+  margin-bottom: var(--space-md);
+  width: fit-content;
+}
+
+.page-header .back:hover { color: var(--accent); }
+
+.page-header .status-line {
+  margin-bottom: 0;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+  display: block;
 }
