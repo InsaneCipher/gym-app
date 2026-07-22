@@ -394,7 +394,7 @@
     /* the data-source toggle is dev/testing-only, not part of the
        in-workout view — collapse it down to a minimal single line so
        it doesn't eat into the no-scroll budget on phones */
-    .data-source { padding-bottom: 10px; flex: none; }
+    .data-source { padding-bottom: 0px; flex: none; }
     .data-source .select-label { display: none; }
     .mode-toggle { max-width: none; min-height: 38px; }
     .mode-btn { padding: 9px 12px; font-size: 12px; }
@@ -456,22 +456,36 @@
       text-align: center;
     }
 
-    /* weight stack — bigger now that this panel has ~half the width */
-    .stack-area { gap: 12px; }
-    .plates { width: clamp(50px, 22vw, 84px); gap: 3px; }
-    .plate { height: clamp(7px, 2.6vh, 14px); }
+    /* weight stack — bigger now that this panel has ~half the width.
+       The plate stack now FLEXES to fill whatever vertical space its
+       panel actually has (capped at max-height so it doesn't get huge),
+       rather than assuming a fixed height that could be taller than
+       what's left once real fonts/line-heights are loaded — that
+       mismatch was what caused the stepper buttons to get clipped. */
+    .stack-area {
+      gap: 12px;
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 220px;
+      align-items: stretch;
+    }
+    .plates { width: clamp(50px, 22vw, 84px); gap: 3px; height: 100%; }
+    .plate { flex: 1 1 0; min-height: 0; height: auto; }
     .pin { width: 24px; height: 6px; }
     .pin::after { width: 11px; height: 11px; left: -5px; top: -2.5px; }
     .weight-readout { margin-top: 10px; flex: none; }
     .weight-num { font-size: clamp(20px, 5.5vh, 32px); }
     .weight-unit { font-size: 9px; }
     .stepper { margin-top: 10px; gap: 6px; flex: none; }
-    .step-btn { width: 36px; height: 36px; font-size: 15px; }
+    .step-btn { width: 36px; height: 36px; font-size: 15px; flex: none; }
 
-    /* ROM track — bigger too, matching the wider column */
+    /* ROM track — same flex-to-fit approach, capped instead of fixed */
     .track-area {
       width: clamp(26px, 9vw, 42px);
-      height: clamp(150px, 28vh, 230px);
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: 230px;
+      height: auto;
     }
     .carriage { left: -7px; width: calc(100% + 14px); }
     .rom-readout { margin-top: 10px; flex: none; }
@@ -594,13 +608,6 @@
     </div>
     <p class="data-source-note" id="dataSourceNote"></p>
   </div>
-
-  <div class="wrap page-header">
-    <div class="status-line"><span class="status-dot"></span>SIGNAL: SIMULATED DATA</div>
-  </div>
-
-  <p class="footnote">Weight, pull distance, and reps are generated for preview — the console will read these live from the handle's Bluetooth signal.</p>
-
 <script src="js/visualizer.js"></script>
 </body>
 </html>
