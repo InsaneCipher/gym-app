@@ -394,7 +394,7 @@
     /* the data-source toggle is dev/testing-only, not part of the
        in-workout view — collapse it down to a minimal single line so
        it doesn't eat into the no-scroll budget on phones */
-    .data-source { padding-bottom: 0px; flex: none; }
+    .data-source { padding-bottom: 10px; flex: none; }
     .data-source .select-label { display: none; }
     .mode-toggle { max-width: none; min-height: 38px; }
     .mode-btn { padding: 9px 12px; font-size: 12px; }
@@ -598,14 +598,15 @@
       </div>
     </div>
 
-    <div class="wrap data-source">
-    <label class="select-label">Data Source</label>
-    <div class="mode-toggle">
-      <button type="button" id="modeSim" class="mode-btn active">Simulated</button>
-      <button type="button" id="modeJson" class="mode-btn">JSON File</button>
+    <div class="data-source">
+      <label class="select-label">Data Source</label>
+      <div class="mode-toggle">
+        <button type="button" id="modeSim" class="mode-btn active">Simulated</button>
+        <button type="button" id="modeJson" class="mode-btn">JSON File</button>
+      </div>
+      <p class="data-source-note" id="dataSourceNote"></p>
     </div>
-    <p class="data-source-note" id="dataSourceNote"></p>
-  </div>
+
 
   </div>
 <script src="js/visualizer.js"></script>
