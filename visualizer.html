@@ -337,13 +337,14 @@
 
     .page-header { padding-top: 8px; flex: none; }
     .page-header .back {
-      margin-bottom: 4px;
-      font-size: 10px;
-      padding: 4px 0;
+      margin-bottom: 8px;
+      font-size: 11px;
+      padding: 9px 16px;
+      min-height: 38px;
     }
     .page-header .status-line { font-size: 9px; letter-spacing: 0.1em; }
 
-    .title-row { padding-top: 10px; padding-bottom: 8px; flex: none; }
+    .title-row { padding-top: 18px; padding-bottom: 8px; flex: none; }
     .title-row .eyebrow { margin-bottom: 2px; font-size: 9px; }
     .title-row h1 { font-size: 19px; }
 
@@ -360,19 +361,25 @@
        its (now capped) content and stays centered in whatever room is
        left, so there's real whitespace instead of everything stretching
        edge to edge. */
+    /* 2-column top row for weight + ROM (each now gets ~half the
+       screen, so they can run bigger), with the reps panel spanning
+       full width below — reps are what you actually glance at mid-set,
+       so it gets the most horizontal room and the biggest numbers. */
     .board {
       flex: 0 1 auto;
       min-height: 0;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
-      padding-bottom: 10px;
+      padding-bottom: 2px;
       width: 100%;
       max-width: 480px;
       margin: 0 auto auto auto;
     }
 
+    .reps-panel { grid-column: 1 / 3; }
+
     .panel {
-      padding: 14px 6px;
+      padding: 14px 10px;
       min-height: 0;
       overflow: hidden;
     }
@@ -384,38 +391,59 @@
       text-align: center;
     }
 
-    /* weight stack — capped heights instead of flex-growing to fill space */
-    .stack-area { gap: 10px; }
-    .plates { width: clamp(38px, 16vw, 60px); gap: 2px; }
-    .plate { height: clamp(6px, 2.2vh, 11px); }
-    .pin { width: 20px; height: 5px; }
-    .pin::after { width: 9px; height: 9px; left: -4px; top: -2px; }
+    /* weight stack — bigger now that this panel has ~half the width */
+    .stack-area { gap: 12px; }
+    .plates { width: clamp(50px, 22vw, 84px); gap: 3px; }
+    .plate { height: clamp(7px, 2.6vh, 14px); }
+    .pin { width: 24px; height: 6px; }
+    .pin::after { width: 11px; height: 11px; left: -5px; top: -2.5px; }
     .weight-readout { margin-top: 10px; flex: none; }
-    .weight-num { font-size: clamp(16px, 4.5vh, 26px); }
-    .weight-unit { font-size: 8px; }
-    .stepper { margin-top: 10px; gap: 4px; flex: none; }
-    .step-btn { width: 32px; height: 32px; font-size: 14px; }
+    .weight-num { font-size: clamp(20px, 5.5vh, 32px); }
+    .weight-unit { font-size: 9px; }
+    .stepper { margin-top: 10px; gap: 6px; flex: none; }
+    .step-btn { width: 36px; height: 36px; font-size: 15px; }
 
-    /* ROM track — fixed capped height, not flex:1 */
+    /* ROM track — bigger too, matching the wider column */
     .track-area {
-      width: clamp(20px, 7vw, 32px);
-      height: clamp(140px, 26vh, 220px);
+      width: clamp(26px, 9vw, 42px);
+      height: clamp(150px, 28vh, 230px);
     }
-    .carriage { left: -6px; width: calc(100% + 12px); }
+    .carriage { left: -7px; width: calc(100% + 14px); }
     .rom-readout { margin-top: 10px; flex: none; }
-    .rom-num { font-size: clamp(16px, 4.5vh, 26px); }
+    .rom-num { font-size: clamp(20px, 5.5vh, 32px); }
 
-    /* reps / session */
-    .odometer { gap: 4px; margin-bottom: 4px; flex: none; }
-    .digit {
-      width: clamp(20px, 8vw, 32px);
-      height: clamp(30px, 10vh, 44px);
-      font-size: clamp(14px, 4.5vh, 22px);
+    /* reps / session — laid out horizontally: big rep count on the
+       left, session info + controls on the right, since the panel
+       now spans the full width instead of a cramped third-column. */
+    .reps-panel {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-areas:
+        "label   label"
+        "odo     info"
+        "caption info"
+        "ctrl    ctrl";
+      column-gap: 20px;
+      align-items: center;
+      padding: 16px 18px;
     }
-    .reps-caption { font-size: 7px; margin-bottom: 8px; }
-    .session-row { padding: 3px 0; font-size: 8px; }
-    .controls { padding-top: 8px; gap: 6px; margin-top: 10px; }
-    .ctrl-btn { padding: 8px 0; min-height: 34px; font-size: 9px; }
+    .reps-panel .panel-label { grid-area: label; text-align: left; margin-bottom: 8px; }
+    .reps-panel .odometer { grid-area: odo; margin-bottom: 0; }
+    .reps-panel .reps-caption { grid-area: caption; margin-bottom: 0; text-align: left; }
+    .reps-panel .session-info { grid-area: info; }
+    .reps-panel .session-row { padding: 4px 0; font-size: 11px; }
+    .reps-panel .controls { grid-area: ctrl; margin-top: 14px; padding-top: 0; }
+
+    /* the actual rep count is the focal number on this screen —
+       noticeably bigger than the weight/ROM readouts */
+    .digit {
+      width: clamp(34px, 13vw, 52px);
+      height: clamp(48px, 15vh, 68px);
+      font-size: clamp(26px, 8vh, 40px);
+    }
+    .odometer { gap: 6px; }
+    .reps-caption { font-size: 9px;}
+    .ctrl-btn { padding: 10px 0; min-height: 38px; font-size: 10px; }
   }
 
 
@@ -424,8 +452,7 @@
 <body>
 
   <div class="wrap page-header">
-    <a href="index.html" class="back">&larr; STACK</a>
-    <div class="status-line"><span class="status-dot"></span>SIGNAL: SIMULATED DATA</div>
+    <a href="index.html" class="back">&larr; BACK</a>
   </div>
 
   <div class="wrap title-row">
@@ -434,8 +461,7 @@
   </div>
 
   <div class="wrap handles">
-    <label class="select-label" for="handleSelect">Handle loaded</label>
-    <select id="handleSelect" class="handle-select">
+    <label for="handleSelect"></label><select id="handleSelect" class="handle-select">
       <option value="Lat Pulldown" data-accent="#3e7bd6">Lat Pulldown</option>
       <option value="Seated Row" data-accent="#3e7bd6">Seated Row</option>
       <option value="Chest Press" data-accent="#d6452c">Chest Press</option>
@@ -454,7 +480,7 @@
       </div>
       <div class="weight-readout">
         <div class="weight-num" id="weightNum">50</div>
-        <div class="weight-unit">LBS</div>
+        <div class="weight-unit">KG</div>
       </div>
       <div class="stepper">
         <button class="step-btn" id="weightDown">&minus;</button>
@@ -480,11 +506,12 @@
         <div class="digit" id="digit1">0</div>
         <div class="digit" id="digit2">0</div>
       </div>
-      <div class="reps-caption">Reps this set</div>
 
-      <div class="session-row"><span>Handle</span><span id="handleLabel">Lat Pulldown</span></div>
-      <div class="session-row"><span>Set time</span><span id="timeLabel">00:00</span></div>
-      <div class="session-row"><span>Avg. tempo</span><span id="tempoLabel">2.4s / rep</span></div>
+      <div class="session-info">
+        <div class="session-row"><span>Handle</span><span id="handleLabel">Lat Pulldown</span></div>
+        <div class="session-row"><span>Set time</span><span id="timeLabel">00:00</span></div>
+        <div class="session-row"><span>Avg. tempo</span><span id="tempoLabel">2.4s / rep</span></div>
+      </div>
 
       <div class="controls">
         <button class="ctrl-btn primary" id="startBtn">Start Set</button>
@@ -492,6 +519,9 @@
       </div>
     </div>
 
+  </div>
+  <div class="wrap page-header">
+    <div class="status-line"><span class="status-dot"></span>SIGNAL: SIMULATED DATA</div>
   </div>
 
   <p class="footnote">Weight, pull distance, and reps are generated for preview — the console will read these live from the handle's Bluetooth signal.</p>

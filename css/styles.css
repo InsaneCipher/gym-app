@@ -111,17 +111,26 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 .page-header .back {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-mono);
   font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0.06em;
-  color: var(--chalk-dim);
+  color: #fff;
+  background: var(--blue);
+  border-radius: 8px;
   margin-bottom: var(--space-md);
   width: fit-content;
-  padding: 6px 0;
+  padding: 10px 18px;
+  min-height: 40px;
+  transition: filter 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.page-header .back:hover { color: var(--accent); }
+.page-header .back:hover { filter: brightness(1.1); }
+.page-header .back:active { transform: scale(0.97); }
 
 .page-header .status-line {
   margin-bottom: 0;
