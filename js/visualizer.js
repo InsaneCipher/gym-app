@@ -38,6 +38,9 @@
   const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
   const handleSelect = document.getElementById("handleSelect");
+  const modeSimBtn = document.getElementById("modeSim");
+  const modeJsonBtn = document.getElementById("modeJson");
+  const dataSourceNoteEl = document.getElementById("dataSourceNote");
 
   // ---------- build plates ----------
   for (let i = 0; i < PLATE_COUNT; i++) {
@@ -212,6 +215,95 @@
   });
 
   resetBtn.addEventListener("click", resetSet);
+
+  // ---------- data source: simulated vs. JSON file ----------
+  // Later this points at whatever file the ESP32 keeps overwriting.
+  // For now it just polls a static data.json sitting next to this page.
+  const JSON_PATH = "data.json";
+  const JSON_POLL_MS = 800;
+
+  let dataMode = "sim"; // "sim" | "json"
+  let jsonPollId = null;
+
+  function setControlsEnabled(enabled) {
+    [weightUpBtn, weightDownBtn, startBtn, resetBtn].forEach((btn) => {
+      btn.disabled = !enabled;
+    });
+  }
+
+  function setNote(text, isError) {
+    dataSourceNoteEl.textContent = text;
+    dataSourceNoteEl.classList.toggle("error", !!isError);
+  }
+
+  // Applies whatever fields are present in the JSON — missing fields are
+  // just left alone, so a partial file (e.g. only "reps") still works.
+  function applyJsonData(data) {
+    if (typeof data.weight === "number") {
+      weight = Math.max(MIN_WEIGHT, Math.min(MAX_WEIGHT, data.weight));
+      renderWeight();
+    }
+    if (typeof data.pullPercent === "number") {
+      const pct = Math.max(0, Math.min(100, data.pullPercent));
+      romNumEl.textContent = Math.round(pct);
+      fillEl.style.height = pct + "%";
+      carriageEl.style.bottom = "calc(" + pct + "% - 5px)";
+    }
+    if (typeof data.reps === "number") {
+      reps = data.reps;
+      renderReps();
+    }
+    if (typeof data.setTimeSeconds === "number") {
+      timeLabelEl.textContent = formatTime(data.setTimeSeconds * 1000);
+    }
+    if (typeof data.avgTempoSeconds === "number") {
+      tempoLabelEl.textContent = data.avgTempoSeconds.toFixed(1) + "s / rep";
+    }
+  }
+
+  async function pollJson() {
+    try {
+      // cache: "no-store" + a cache-busting query param, since the whole
+      // point is reading a file that keeps changing underneath us
+      const res = await fetch(JSON_PATH + "?t=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      applyJsonData(data);
+      const stamp = new Date().toLocaleTimeString();
+      setNote("Reading " + JSON_PATH + " — last updated " + stamp, false);
+    } catch (err) {
+      setNote("Could not read " + JSON_PATH + " (" + err.message + ")", true);
+    }
+  }
+
+  function switchToJsonMode() {
+    if (dataMode === "json") return;
+    dataMode = "json";
+    // stop any running simulation loop without touching its button label,
+    // since controls get disabled below anyway
+    running = false;
+    clearInterval(timerId);
+    cancelAnimationFrame(rafId);
+    setControlsEnabled(false);
+    modeJsonBtn.classList.add("active");
+    modeSimBtn.classList.remove("active");
+    pollJson();
+    jsonPollId = setInterval(pollJson, JSON_POLL_MS);
+  }
+
+  function switchToSimMode() {
+    if (dataMode === "sim") return;
+    dataMode = "sim";
+    clearInterval(jsonPollId);
+    jsonPollId = null;
+    setControlsEnabled(true);
+    setNote("", false);
+    modeSimBtn.classList.add("active");
+    modeJsonBtn.classList.remove("active");
+  }
+
+  modeSimBtn.addEventListener("click", switchToSimMode);
+  modeJsonBtn.addEventListener("click", switchToJsonMode);
 
   // ---------- init ----------
   renderWeight();

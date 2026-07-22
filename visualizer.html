@@ -290,6 +290,13 @@
   .ctrl-btn.primary { border-color: var(--accent); color: var(--bg); background: var(--accent); }
   .ctrl-btn:hover { filter: brightness(1.12); }
 
+  .ctrl-btn:disabled,
+  .step-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    filter: none;
+  }
+
   .footnote {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -298,6 +305,55 @@
     padding: 30px 20px 50px;
     letter-spacing: 0.04em;
   }
+
+  /* ---- data source toggle ---- */
+  /* Deliberately mirrors .handle-select: same width, border, background,
+     and height — this reads as "another bar like the one above it"
+     instead of a separate floating control. */
+  .data-source {
+    padding-bottom: var(--space-lg);
+  }
+
+  .mode-toggle {
+    display: flex;
+    width: 100%;
+    max-width: 320px;
+    border: 1px solid var(--steel);
+    background: var(--panel);
+    min-height: 48px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: var(--chalk-dim);
+    padding: 14px 16px;
+    background: transparent;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mode-btn + .mode-btn { border-left: 1px solid var(--steel); }
+
+  .mode-btn.active {
+    background: var(--panel-2);
+    color: var(--chalk);
+  }
+
+  .mode-btn:hover:not(.active) { color: var(--chalk); border-color: var(--accent); }
+
+  .data-source-note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--chalk-dim);
+    margin: 10px 0 0;
+    min-height: 14px;
+  }
+
+  .data-source-note.error { color: var(--red); }
 
   /* =========================================================
      COCKPIT MODE — phones/small tablets.
@@ -334,6 +390,15 @@
     }
 
     .footnote { display: none; }
+
+    /* the data-source toggle is dev/testing-only, not part of the
+       in-workout view — collapse it down to a minimal single line so
+       it doesn't eat into the no-scroll budget on phones */
+    .data-source { padding-bottom: 10px; flex: none; }
+    .data-source .select-label { display: none; }
+    .mode-toggle { max-width: none; min-height: 38px; }
+    .mode-btn { padding: 9px 12px; font-size: 12px; }
+    .data-source-note { font-size: 9px; margin-top: 4px; }
 
     .page-header { padding-top: 18px; flex: none; }
     .page-header .back {
@@ -520,6 +585,16 @@
     </div>
 
   </div>
+
+  <div class="wrap data-source">
+    <label class="select-label">Data Source</label>
+    <div class="mode-toggle">
+      <button type="button" id="modeSim" class="mode-btn active">Simulated</button>
+      <button type="button" id="modeJson" class="mode-btn">JSON File</button>
+    </div>
+    <p class="data-source-note" id="dataSourceNote"></p>
+  </div>
+
   <div class="wrap page-header">
     <div class="status-line"><span class="status-dot"></span>SIGNAL: SIMULATED DATA</div>
   </div>
