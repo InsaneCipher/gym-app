@@ -164,9 +164,17 @@
     padding: 14px 16px;
   }
 
+  .plan-item-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex: none;
+  }
+
   .plan-item-info {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 14px;
   }
 
@@ -574,11 +582,11 @@
         <div>
           <label class="select-label" for="exerciseSelect">Exercise</label>
           <select id="exerciseSelect" class="handle-select">
-            <option value="Lat Pulldown">Lat Pulldown</option>
-            <option value="Seated Row">Seated Row</option>
-            <option value="Chest Press">Chest Press</option>
-            <option value="Leg Extension">Leg Extension</option>
-            <option value="Shoulder Press">Shoulder Press</option>
+            <option value="Lat Pulldown" data-accent="#3e7bd6">Lat Pulldown</option>
+            <option value="Seated Row" data-accent="#3e7bd6">Seated Row</option>
+            <option value="Chest Press" data-accent="#d6452c">Chest Press</option>
+            <option value="Leg Extension" data-accent="#47a56b">Leg Extension</option>
+            <option value="Shoulder Press" data-accent="#dcb400">Shoulder Press</option>
           </select>
         </div>
         <div class="reps-field">
