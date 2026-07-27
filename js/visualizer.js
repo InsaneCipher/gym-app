@@ -220,16 +220,18 @@
   // Later this points at whatever file the ESP32 keeps overwriting.
   // For now it just polls a static data.json sitting next to this page.
   const JSON_PATH = "data.json";
-  const JSON_POLL_MS = 800;
+  const JSON_POLL_MS = 100;
 
   let dataMode = "sim"; // "sim" | "json"
   let jsonPollId = null;
 
   function setControlsEnabled(enabled) {
-    [weightUpBtn, weightDownBtn, startBtn, resetBtn].forEach((btn) => {
-      btn.disabled = !enabled;
-    });
-  }
+      // weightUpBtn/weightDownBtn removed — weight stays user-controlled
+      // in every mode now, since it's no longer part of the JSON pipeline
+      [startBtn, resetBtn].forEach((btn) => {
+        btn.disabled = !enabled;
+      });
+    }
 
   function setNote(text, isError) {
     dataSourceNoteEl.textContent = text;
@@ -239,27 +241,24 @@
   // Applies whatever fields are present in the JSON — missing fields are
   // just left alone, so a partial file (e.g. only "reps") still works.
   function applyJsonData(data) {
-    if (typeof data.weight === "number") {
-      weight = Math.max(MIN_WEIGHT, Math.min(MAX_WEIGHT, data.weight));
-      renderWeight();
-    }
-    if (typeof data.pullPercent === "number") {
-      const pct = Math.max(0, Math.min(100, data.pullPercent));
-      romNumEl.textContent = Math.round(pct);
-      fillEl.style.height = pct + "%";
-      carriageEl.style.bottom = "calc(" + pct + "% - 5px)";
-    }
-    if (typeof data.reps === "number") {
-      reps = data.reps;
-      renderReps();
-    }
-    if (typeof data.setTimeSeconds === "number") {
-      timeLabelEl.textContent = formatTime(data.setTimeSeconds * 1000);
-    }
-    if (typeof data.avgTempoSeconds === "number") {
-      tempoLabelEl.textContent = data.avgTempoSeconds.toFixed(1) + "s / rep";
-    }
+  // weight block removed entirely — data.json no longer contains it
+  if (typeof data.pullPercent === "number") {
+    const pct = Math.max(0, Math.min(100, data.pullPercent));
+    romNumEl.textContent = Math.round(pct);
+    fillEl.style.height = pct + "%";
+    carriageEl.style.bottom = "calc(" + pct + "% - 5px)";
   }
+  if (typeof data.reps === "number") {
+    reps = data.reps;
+    renderReps();
+  }
+  if (typeof data.setTimeSeconds === "number") {
+    timeLabelEl.textContent = formatTime(data.setTimeSeconds * 1000);
+  }
+  if (typeof data.avgTempoSeconds === "number") {
+    tempoLabelEl.textContent = data.avgTempoSeconds.toFixed(1) + "s / rep";
+  }
+}
 
   async function pollJson() {
     try {
