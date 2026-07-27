@@ -17,7 +17,7 @@ def index():
 UP_THRESHOLD = 85
 DOWN_THRESHOLD = 15
 
-def compute_from_sensor(sensor_path='sensor.json', output_path='data.json', poll_interval=0.05):
+def compute_from_sensor(sensor_path='sensor.json', output_path='html/data.json', poll_interval=0.05):
     reps = 0
     phase = "down"  # "down" -> "up" -> "down" completes one rep
     start_time = time.time()
