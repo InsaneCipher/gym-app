@@ -96,6 +96,7 @@
       li.innerHTML =
         '<div class="plan-item-info">' +
           '<span class="plan-item-num">' + String(i + 1).padStart(2, "0") + "</span>" +
+          '<span class="plan-item-dot" style="background:' + (item.accent || DEFAULT_ACCENT) + '"></span>' +
           '<span class="plan-item-name">' + item.exercise + "</span>" +
           '<span class="plan-item-reps">' + item.target + " reps · " + item.weight + " kg</span>" +
         "</div>" +
@@ -116,10 +117,15 @@
     });
   }
 
+  // fallback in case a plan saved before this feature existed is loaded
+  // without an accent value, or an exercise name doesn't match any option
+  const DEFAULT_ACCENT = "#d7f238";
+
   addExerciseBtn.addEventListener("click", () => {
     const target = Math.max(1, Math.min(99, parseInt(repsTargetInput.value, 10) || 10));
     const planWeight = Math.max(MIN_WEIGHT, Math.min(MAX_WEIGHT, parseInt(weightInput.value, 10) || 50));
-    plan.push({ exercise: exerciseSelect.value, target, weight: planWeight });
+    const accent = exerciseSelect.selectedOptions[0].dataset.accent || DEFAULT_ACCENT;
+    plan.push({ exercise: exerciseSelect.value, target, weight: planWeight, accent });
     renderPlan();
     savePlanToStorage();
   });
@@ -212,6 +218,7 @@
 
   function loadExercise(index) {
     const ex = plan[index];
+    document.documentElement.style.setProperty("--accent", ex.accent || DEFAULT_ACCENT);
     runnerProgressCount.textContent = "Exercise " + (index + 1) + " of " + plan.length;
     runnerExerciseName.textContent = ex.exercise;
     repsTargetNumEl.textContent = ex.target;
