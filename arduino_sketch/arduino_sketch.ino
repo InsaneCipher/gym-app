@@ -53,13 +53,10 @@ void loop() {
     Serial.println("No echo received (out of range or check wiring)");
   } else {
     float distanceCm = (duration * SOUND_SPEED_CM_PER_US) / 2.0;
-    float distanceIn = distanceCm / 2.54;
 
     Serial.print("Distance: ");
     Serial.print(distanceCm, 1);
-    Serial.print(" cm  (");
-    Serial.print(distanceIn, 1);
-    Serial.println(" in)");
+    Serial.println(" cm");
   }
 
   delay(250); // ~4 readings per second
