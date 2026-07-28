@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics — STACK</title>
+<!-- Assumes this file lives in /html alongside visualizer.html and
+     workout.html, with css/ and js/ still at the project root —
+     adjust these three paths if your actual layout differs. -->
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="icon" href="../icon.ico" type="image/x-icon">
+<style>
+
+  .title-row { padding-top: var(--space-md); padding-bottom: var(--space-lg); }
+  .title-row .eyebrow { margin-bottom: var(--space-sm); }
+  .title-row h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: clamp(28px, 5vw, 40px);
+    letter-spacing: 0.01em;
+    margin: 0;
+  }
+
+  .summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .summary-chip {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--chalk-dim);
+    background: var(--panel);
+    border: 1px solid var(--steel);
+    padding: 10px 16px;
+  }
+  .summary-chip strong { color: var(--chalk); font-weight: 700; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    padding-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--steel);
+    padding: 22px;
+  }
+
+  .stat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .stat-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .stat-card-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 11px 0;
+    border-top: 1px solid var(--steel);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .stat-row span:first-child {
+    color: var(--chalk-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .stat-row span:last-child {
+    color: var(--chalk);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .empty-state {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--chalk-dim);
+    text-align: center;
+    padding: 60px 20px;
+    border: 1px dashed var(--steel);
+    margin-bottom: 24px;
+  }
+
+  .page-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+  }
+
+  .clear-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+    background: transparent;
+    border: 1px solid var(--steel);
+    padding: 10px 16px;
+    transition: all 0.15s ease;
+  }
+  .clear-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .footnote {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--chalk-dim);
+    text-align: center;
+    padding: 0 20px 50px;
+    letter-spacing: 0.04em;
+  }
+
+</style>
+</head>
+<body>
+
+  <div class="wrap page-header">
+    <a href="../index.html" class="back">BACK</a>
+  </div>
+
+  <div class="wrap title-row">
+    <div class="eyebrow">PROGRAM 03</div>
+    <h1>Statistics</h1>
+  </div>
+
+  <div class="wrap" id="statsWrap">
+    <div class="summary-row" id="summaryRow"></div>
+    <p class="empty-state" id="emptyState" hidden>No completed sets yet — finish a workout to see your stats here.</p>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="page-actions">
+      <button type="button" class="clear-btn" id="clearStatsBtn">Clear Stats</button>
+    </div>
+  </div>
+
+  <p class="footnote">Stats are built from every exercise you've completed in the Workout Plan runner, stored locally in this browser.</p>
+
+<script src="../js/stats.js"></script>
+</body>
+</html>

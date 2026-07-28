@@ -8,6 +8,7 @@
   const JSON_PATH = "data.json";
   const JSON_POLL_MS = 100;
   const PLAN_STORAGE_KEY = "stack-workout-plan";
+  const LOG_STORAGE_KEY = "stack-session-log";
 
   // ---------- state ----------
   let plan = [];               // [{ exercise, target }]
@@ -19,6 +20,7 @@
   let baselineReps = 0;        // data.reps value captured when Start was pressed
   let startTime = null;
   let elapsedMs = 0;
+  let lastAvgTempo = null;     // most recent avgTempoSeconds seen from data.json this exercise
 
   // ---------- dom: planner ----------
   const plannerView = document.getElementById("plannerView");
@@ -85,6 +87,21 @@
       }
     } catch (err) {
       console.warn("Could not load saved plan:", err);
+    }
+  }
+
+  // ---------- persistence: completed-set history, used by the Statistics page ----------
+  function logCompletedSet(entry) {
+    try {
+      const raw = localStorage.getItem(LOG_STORAGE_KEY);
+      const log = raw ? JSON.parse(raw) : [];
+      const list = Array.isArray(log) ? log : [];
+      list.push(entry);
+      // cap history length so localStorage doesn't grow unbounded forever
+      const trimmed = list.length > 1000 ? list.slice(list.length - 1000) : list;
+      localStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(trimmed));
+    } catch (err) {
+      console.warn("Could not log completed set:", err);
     }
   }
 
@@ -229,6 +246,7 @@
     timeLabelEl.textContent = "00:00";
     tempoLabelEl.textContent = "—";
     elapsedMs = 0;
+    lastAvgTempo = null;
     completionNoteEl.hidden = true;
     startBtn.hidden = false;
     startBtn.disabled = false;
@@ -262,6 +280,7 @@
         carriageEl.style.bottom = "calc(" + pct + "% - 5px)";
       }
       if (typeof data.avgTempoSeconds === "number") {
+        lastAvgTempo = data.avgTempoSeconds;
         tempoLabelEl.textContent = data.avgTempoSeconds.toFixed(1) + "s / rep";
       }
       if (typeof data.reps === "number") {
@@ -305,6 +324,21 @@
     renderReps(plan[currentIndex].target);
     startBtn.hidden = true;
     completionNoteEl.hidden = false;
+
+    // use a fresh Date.now() rather than the last tickTimer value, since
+    // the 250ms tick could be up to a quarter-second stale at the exact
+    // moment the target rep count is reached
+    const finalElapsedMs = startTime !== null ? Date.now() - startTime : elapsedMs;
+
+    const finished = plan[currentIndex];
+    logCompletedSet({
+      exercise: finished.exercise,
+      weight: finished.weight,
+      reps: finished.target,
+      avgTempo: lastAvgTempo,
+      timeSeconds: Math.round(finalElapsedMs / 1000),
+      timestamp: Date.now(),
+    });
 
     const isLast = currentIndex >= plan.length - 1;
     completionNoteEl.textContent = isLast
