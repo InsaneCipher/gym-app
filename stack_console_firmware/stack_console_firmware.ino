@@ -224,6 +224,44 @@ void listLittleFSFiles() {
   }
 }
 
+void printTree(File dir, const String &prefix = "") {
+  File entry = dir.openNextFile();
+  Serial.println(LittleFS.exists("/data.json") ? "data.json exists" : "data.json NOT found");
+  Serial.println(LittleFS.exists("/config.json") ? "config.json exists" : "config.json NOT found");
+
+  while (entry) {
+    bool isDir = entry.isDirectory();
+
+    Serial.print(prefix);
+    Serial.print(isDir ? "├── " : "├── ");
+    Serial.print(entry.name());
+
+    if (isDir) {
+      Serial.println("/");
+      printTree(entry, prefix + "│   ");
+    } else {
+      Serial.printf(" (%u bytes)\n", (unsigned)entry.size());
+    }
+
+    entry = dir.openNextFile();
+  }
+}
+
+void listLittleFSTree() {
+  File root = LittleFS.open("/");
+
+  if (!root || !root.isDirectory()) {
+    Serial.println("Failed to open LittleFS root.");
+    return;
+  }
+
+  Serial.println();
+  Serial.println("===== LittleFS Tree =====");
+  Serial.println("/");
+  printTree(root);
+  Serial.println("=========================");
+}
+
 // =========================================================
 // Setup / loop
 // =========================================================
@@ -244,7 +282,7 @@ void setup() {
   } else {
     Serial.println("[littlefs] mounted OK");
     Serial.printf("[littlefs] used=%u / total=%u bytes\n", LittleFS.usedBytes(), LittleFS.totalBytes());
-    listLittleFSFiles();
+    listLittleFSTree();
   }
 
   Serial.print("[wifi] starting AP \"");
