@@ -1,35 +1,14 @@
 /*
-  STACK Console — ESP32 Firmware
-  --------------------------------
-  Runs entirely on the ESP32:
-    - Creates its own WiFi network (AP mode) — no router needed, just
-      connect a phone/tablet directly to it.
-    - Serves the whole static website (index.html, css/, js/, html/...)
-      straight from the ESP32's LittleFS flash filesystem.
-    - Exposes /data.json as a LIVE endpoint (built fresh on every
-      request with ArduinoJson) containing pullPercent, reps,
-      setTimeSeconds, and avgTempoSeconds — the same fields the
-      website's JSON File mode already expects.
+  STACK Console — ESP32 Firmware (with debug logging)
+  ------------------------------------------------------
+  Same as before, but with Serial prints added at every stage so you
+  can see exactly what's happening: WiFi/LittleFS setup, every file
+  request, every sensor reading, every rep detected, and the JSON
+  actually being sent out.
 
-  Libraries needed (Library Manager):
-    - ArduinoJson (by Benoit Blanchon) — v7 syntax used below
-    - LittleFS is built into the ESP32 Arduino core, no install needed
-
-  Before uploading:
-    1. Put your site files (index.html, css/, js/, html/, icon.ico...)
-       into a folder named "data" next to this .ino file.
-    2. Upload them to the ESP32's flash using the LittleFS filesystem
-       uploader for your IDE:
-         - Arduino IDE: "ESP32 Sketch Data Upload" tool (via the
-           arduino-littlefs-upload plugin — install it if you don't
-           have it already, then Tools > ESP32 LittleFS Data Upload)
-         - PlatformIO: `pio run --target uploadfs`
-    3. Then upload this sketch normally.
-
-  Wiring (ultrasonic sensor, same pins as the earlier demo sketch):
-    TRIG -> GPIO 5
-    ECHO -> GPIO 4
-    (Remember the 5V/3.3V ECHO caveat from before if using a real HC-SR04.)
+  Open the Serial Monitor at 115200 baud, then load the page and watch
+  what prints (or doesn't). See the troubleshooting notes at the very
+  bottom of this file for how to read the output.
 */
 
 #include <WiFi.h>
@@ -47,18 +26,18 @@ WebServer server(80);
 const int TRIG_PIN = 5;
 const int ECHO_PIN = 4;
 
-// Calibrate these to your actual handle's travel distance.
-// DIST_MIN_CM = sensor reading when the handle is fully pulled (closest).
-// DIST_MAX_CM = sensor reading when the handle is fully released (farthest).
 const float DIST_MIN_CM = 5.0;
 const float DIST_MAX_CM = 40.0;
 
-const unsigned long SENSOR_INTERVAL_MS = 60;   // don't trigger more often than this
+const unsigned long SENSOR_INTERVAL_MS = 60;
 unsigned long lastSensorReadMs = 0;
 
+// set to false once things are working, to quiet down the sensor spam
+bool DEBUG_SENSOR_READINGS = true;
+
 // ---------- rep detection state ----------
-const float UP_THRESHOLD   = 85.0;   // pullPercent that counts as "fully pulled"
-const float DOWN_THRESHOLD = 15.0;   // pullPercent that counts as "back down"
+const float UP_THRESHOLD   = 85.0;
+const float DOWN_THRESHOLD = 15.0;
 
 enum RepPhase { PHASE_DOWN, PHASE_UP };
 RepPhase repPhase = PHASE_DOWN;
@@ -68,7 +47,7 @@ int repCount = 0;
 unsigned long setStartMs = 0;
 unsigned long lastRepMs = 0;
 
-const int TEMPO_WINDOW = 8;           // rolling average over the last N reps
+const int TEMPO_WINDOW = 8;
 float repDurations[TEMPO_WINDOW];
 int repDurationCount = 0;
 int repDurationIndex = 0;
@@ -77,8 +56,6 @@ int repDurationIndex = 0;
 // Ultrasonic distance -> pull percentage
 // =========================================================
 
-// Returns distance in cm, or -1 if no echo was received (out of range /
-// nothing reflecting the ping / wiring issue).
 float readDistanceCm() {
   digitalWrite(TRIG_PIN, LOW);
   delayMicroseconds(2);
@@ -86,8 +63,11 @@ float readDistanceCm() {
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
 
-  unsigned long duration = pulseIn(ECHO_PIN, HIGH, 30000); // 30ms timeout
-  if (duration == 0) return -1;
+  unsigned long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  if (duration == 0) {
+    if (DEBUG_SENSOR_READINGS) Serial.println("[sensor] no echo (timeout) — check wiring/range");
+    return -1;
+  }
   return (duration * 0.0343) / 2.0;
 }
 
@@ -98,8 +78,7 @@ float distanceToPullPercent(float distanceCm) {
 }
 
 // =========================================================
-// Sensor + rep-counting update — call often from loop(), it
-// rate-limits itself internally so it's safe to call every iteration
+// Sensor + rep-counting update
 // =========================================================
 void updateSensor() {
   unsigned long now = millis();
@@ -107,26 +86,33 @@ void updateSensor() {
   lastSensorReadMs = now;
 
   float distance = readDistanceCm();
-  if (distance < 0) return; // no echo this cycle — keep the last known value
+  if (distance < 0) return; // readDistanceCm() already logged the timeout
 
   currentPullPercent = distanceToPullPercent(distance);
 
-  // simple state machine: a rep completes once we've gone all the way
-  // up past UP_THRESHOLD and back down past DOWN_THRESHOLD
+  if (DEBUG_SENSOR_READINGS) {
+    Serial.printf("[sensor] distance=%.1fcm  pullPercent=%.1f%%  phase=%s\n",
+      distance, currentPullPercent, repPhase == PHASE_UP ? "UP" : "DOWN");
+  }
+
   if (repPhase == PHASE_DOWN && currentPullPercent >= UP_THRESHOLD) {
     repPhase = PHASE_UP;
+    Serial.println("[rep] phase -> UP (crossed upper threshold)");
   } else if (repPhase == PHASE_UP && currentPullPercent <= DOWN_THRESHOLD) {
     repPhase = PHASE_DOWN;
     repCount++;
 
     unsigned long nowMs = millis();
+    float repSeconds = 0;
     if (lastRepMs > 0) {
-      float repSeconds = (nowMs - lastRepMs) / 1000.0;
+      repSeconds = (nowMs - lastRepMs) / 1000.0;
       repDurations[repDurationIndex] = repSeconds;
       repDurationIndex = (repDurationIndex + 1) % TEMPO_WINDOW;
       if (repDurationCount < TEMPO_WINDOW) repDurationCount++;
     }
     lastRepMs = nowMs;
+
+    Serial.printf("[rep] *** REP COMPLETE *** total=%d  duration=%.2fs\n", repCount, repSeconds);
   }
 }
 
@@ -141,9 +127,8 @@ float averageTempoSeconds() {
 // HTTP handlers
 // =========================================================
 
-// Live data endpoint — built fresh every request, not read from a file.
 void handleDataJson() {
-  JsonDocument doc; // ArduinoJson v7: auto-sized, no template capacity needed
+  JsonDocument doc;
 
   doc["pullPercent"] = currentPullPercent;
   doc["reps"] = repCount;
@@ -152,11 +137,15 @@ void handleDataJson() {
 
   String output;
   serializeJson(doc, output);
+
+  Serial.print("[http] GET /data.json from ");
+  Serial.print(server.client().remoteIP());
+  Serial.print("  -> ");
+  Serial.println(output);
+
   server.send(200, "application/json", output);
 }
 
-// Optional convenience endpoint to zero everything out for a fresh set —
-// call this (e.g. POST /reset) from a "New Set" button if you add one.
 void handleReset() {
   repCount = 0;
   repPhase = PHASE_DOWN;
@@ -164,6 +153,7 @@ void handleReset() {
   lastRepMs = 0;
   repDurationCount = 0;
   repDurationIndex = 0;
+  Serial.println("[http] POST /reset — counters zeroed");
   server.send(200, "application/json", "{\"status\":\"reset\"}");
 }
 
@@ -178,14 +168,27 @@ String getContentType(const String& path) {
   return "text/plain";
 }
 
-// Serves any file that exists in LittleFS, e.g. /css/styles.css,
-// /html/visualizer.html, or / (mapped to /index.html).
 bool serveStaticFile(String path) {
   if (path.endsWith("/")) path += "index.html";
-  if (!LittleFS.exists(path)) return false;
+
+  bool exists = LittleFS.exists(path);
+  Serial.print("[http] GET ");
+  Serial.print(path);
+  Serial.print("  exists=");
+  Serial.print(exists ? "yes" : "NO");
+
+  if (!exists) {
+    Serial.println();
+    return false;
+  }
 
   File file = LittleFS.open(path, "r");
-  if (!file) return false;
+  if (!file) {
+    Serial.println("  -> LittleFS.open() FAILED even though exists() was true");
+    return false;
+  }
+
+  Serial.printf("  -> serving %u bytes as %s\n", (unsigned)file.size(), getContentType(path).c_str());
   server.streamFile(file, getContentType(path));
   file.close();
   return true;
@@ -193,7 +196,32 @@ bool serveStaticFile(String path) {
 
 void handleNotFound() {
   if (serveStaticFile(server.uri())) return;
+  Serial.print("[http] 404: ");
+  Serial.println(server.uri());
   server.send(404, "text/plain", "404: Not Found — " + server.uri());
+}
+
+// lists every file LittleFS actually has, so you can confirm the
+// upload worked and the paths are what you expect
+void listLittleFSFiles() {
+  Serial.println("[littlefs] Files found:");
+  File root = LittleFS.open("/");
+  if (!root || !root.isDirectory()) {
+    Serial.println("[littlefs]   (could not open root directory)");
+    return;
+  }
+  File f = root.openNextFile();
+  int count = 0;
+  while (f) {
+    Serial.printf("[littlefs]   %s  (%u bytes)\n", f.path(), (unsigned)f.size());
+    count++;
+    f = root.openNextFile();
+  }
+  if (count == 0) {
+    Serial.println("[littlefs]   ** NO FILES FOUND ** — did the LittleFS data upload actually run?");
+  } else {
+    Serial.printf("[littlefs] %d file(s) total\n", count);
+  }
 }
 
 // =========================================================
@@ -202,33 +230,85 @@ void handleNotFound() {
 
 void setup() {
   Serial.begin(115200);
-  delay(500);
+  delay(1000); // extra time for USB CDC to enumerate before we print anything
+  Serial.println();
+  Serial.println("===== STACK Console booting =====");
 
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
   digitalWrite(TRIG_PIN, LOW);
 
-  if (!LittleFS.begin(true)) { // true = format if mount fails
-    Serial.println("LittleFS mount failed — did you upload the data folder?");
+  Serial.println("[littlefs] mounting...");
+  if (!LittleFS.begin(true)) {
+    Serial.println("[littlefs] MOUNT FAILED — did you upload the data folder?");
   } else {
-    Serial.println("LittleFS mounted.");
+    Serial.println("[littlefs] mounted OK");
+    Serial.printf("[littlefs] used=%u / total=%u bytes\n", LittleFS.usedBytes(), LittleFS.totalBytes());
+    listLittleFSFiles();
   }
 
-  WiFi.softAP(AP_SSID, AP_PASSWORD);
-  Serial.print("AP started. Connect to WiFi network: ");
-  Serial.println(AP_SSID);
-  Serial.print("Then visit: http://");
-  Serial.println(WiFi.softAPIP()); // normally 192.168.4.1
+  Serial.print("[wifi] starting AP \"");
+  Serial.print(AP_SSID);
+  Serial.println("\"...");
+  bool apOk = WiFi.softAP(AP_SSID, AP_PASSWORD);
+  Serial.println(apOk ? "[wifi] AP started OK" : "[wifi] AP START FAILED");
+  Serial.print("[wifi] connect to that network, then visit: http://");
+  Serial.println(WiFi.softAPIP());
 
   server.on("/data.json", HTTP_GET, handleDataJson);
   server.on("/reset", HTTP_POST, handleReset);
-  server.onNotFound(handleNotFound); // serves every other file from LittleFS
+  server.onNotFound(handleNotFound);
 
   server.begin();
+  Serial.println("[http] server started on port 80");
+
   setStartMs = millis();
+  Serial.println("===== Setup complete — waiting for requests =====");
+  Serial.println();
 }
 
 void loop() {
   server.handleClient();
   updateSensor();
 }
+
+/*
+  ===== Reading the debug output =====
+
+  On boot you should see, in order:
+    [littlefs] mounted OK
+    [littlefs] ... a list of your actual files (index.html, css/styles.css, etc.)
+    [wifi] AP started OK
+    [wifi] connect to that network, then visit: http://192.168.4.1
+
+  If "[littlefs] ** NO FILES FOUND **" prints:
+    The LittleFS data upload never actually happened, or uploaded to
+    the wrong partition. Re-run the LittleFS upload tool and watch
+    its own console output for errors — this is the single most
+    common cause of "page loads but is broken."
+
+  Once the page is open in a browser, every request should print a
+  line starting with [http]. If you open the site and see NOTHING
+  print at all:
+    You're likely not actually talking to the ESP32 — double check
+    the phone/laptop is connected to the "STACK-Console" WiFi network
+    (not still on your home WiFi), and that the address bar shows
+    192.168.4.1 (or whatever [wifi] printed).
+
+  If you see [http] GET /index.html etc. but NEVER see
+  [http] GET /data.json:
+    The website itself isn't calling this endpoint — check that
+    fetch() in your JS points to "data.json" or "/data.json" (not
+    "../data.json" or some other relative path that no longer
+    resolves once served from the ESP32's root), and that the page is
+    actually in "JSON File" mode rather than "Simulated" mode if your
+    UI has that toggle.
+
+  If [http] GET /data.json DOES appear, but the JSON payload printed
+  after "->" always shows pullPercent=0 and reps=0:
+    The HTTP side is fully working — the problem is upstream, in the
+    sensor. Check for repeating "[sensor] no echo (timeout)" lines,
+    which point to a wiring issue (TRIG/ECHO swapped, no common
+    ground, sensor out of its usable range) rather than anything in
+    the web server code.
+*/
